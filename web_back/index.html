@@ -106,6 +106,28 @@
 
     <script>
     $(function(){
+
+        /* 
+        一进到首页,就应该发送ajax请求,获取用户信息(个人图片和昵称)
+        把图片和昵称显示到对应的标签中
+         */
+        $.ajax({
+            url:'http://localhost:8000/admin/getuser',
+            success:function(backData){
+                console.log(backData);
+                if(backData.code == 200){
+                    $('user_info img').attr('src',backData.data.user_pic);
+                    $('user_info span').html('欢迎&nbsp;&nbsp;'+backData.data.nickname);
+                    $('user_center_link').attr('src',backData.data.user_pic);
+                }
+                
+            }
+        })
+
+
+
+
+
         /* 
         1.点击退出那个a标签，发送ajax请求
         2.如果成功了就跳转到登录页面
