@@ -65,6 +65,23 @@
         </div>
     </div>
 
+    <script>
+    $(function(){
+        /* 
+        步骤：
+        进到个人中心，发送ajax请求吗，获取到个人信息
+        把个人信息显示在对应的标签中
+         */
+
+         $.ajax({
+             url:'http://localhost:8000/admin/userinfo_get',
+             success:function(backData){
+                 
+             }
+         })
+    })
+    </script>
+
 </body>
 
 </html>
