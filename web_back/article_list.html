@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="js/jquery.twbsPagination.js"></script>
+    <script src="./js/bootstrap/js/bootstrap.min.js"></script>
 </head>
 
 <body>
@@ -312,36 +314,75 @@
             }
         });
 
-
-        //点击筛选按钮搜索文章
-        $('#btnSearch').on('click',function(e){
-            e.preventDefault();
+        //获取文章列表写成一个函数
+        function getData(mypage) {
             //获取文章类别id和状态.
             var cateId = $('#selCategory').val();
             var state = $('#selStatus').val();
             //console.log(cateId,state);
             //发送ajax请求
             $.ajax({
-                url:'http://localhost:8000/admin/search',
-                data:{
-                   type: cateId,
-                   state:state,
-                   page:1,
-                   perpage:5
+                url: 'http://localhost:8000/admin/search',
+                data: {
+                    type: cateId,
+                    state: state,
+                    page: mypage,
+                    perpage: 5
                 },
-                success:function(backData){
+                success: function (backData) {
                     //console.log(backData);
-                    if(backData.code == 200){
-                        var resHtml = template('tmp_list',backData);
+                    if (backData.code == 200) {
+                        var resHtml = template('tmp_list', backData);
                         $('tbody').html(resHtml);;
+                        //因为ajax发送请求成功后才会得到真实的总页码
+                        //所以根据真实的总页码生成真实的页签条代码才应该放在这里
+                        var totalPages = backData.totalPage;//获取真实的总页码。
+                        console.log(totalPages);
+                        if(myTotalPage != totalPages){
+                            myTotalPage = totalPages;//把查询出来的真实的总页码数显示在页码条上
+                        
+                        var currentPage = $pagination.twbsPagination('getCurrentPage');
+                        //问题：分页插件调用destroy方法的时候，会自动的去调用onPageClick
+                        $pagination.twbsPagination('destroy');
+                        $pagination.twbsPagination($.extend({}, defaultOpts, {
+                            startPage: 1,
+                            totalPages: totalPages,
+                        }));
+                        }
                     }
                 }
-            });
+            })
+        }
+
+
+        //点击筛选按钮搜索文章
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();
+            getData(1);
+
         });
 
         //一进到这个文章列表页面,就触发一次这个筛选按钮点击事件
-        $('#btnSearch').trigger('click')
+        $('#btnSearch').trigger('click');
 
+
+        //声明一个变量，用来记录当前的页码条上面的数。
+        var myTotalPage = 10;
+        //分页功能
+        // onPageClick事件，是单击页签会执行的事件
+        var $pagination = $('.pagination');
+        var defaultOpts = {
+            first: '首页',
+            prev: '上一页',
+            next: '下一页',
+            last: '尾页',
+            totalPages: myTotalPage,
+            visiblePages: 5,
+            onPageClick: function (event, page) {
+                getData(page);
+            }
+        };
+        $pagination.twbsPagination(defaultOpts);
     </script>
 
 </body>
